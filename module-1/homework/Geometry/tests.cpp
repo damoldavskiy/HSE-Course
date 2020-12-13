@@ -59,7 +59,7 @@ TEST(Similarity, Test1) {
         Point d(1, 0);
         vec = {a, b, c, d};
     }
-    
+
     Polygon actual(vec);
 
     {
@@ -84,7 +84,7 @@ TEST(Similarity, Test2) {
         Point d(1, 0);
         vec = {a, b, c, d};
     }
-    
+
     Polygon actual(vec);
 
     {
@@ -108,7 +108,7 @@ TEST(Congruent, Congruent) {
         Point d(1, 0);
         vec = {a, b, c, d};
     }
-    
+
     Polygon actual(vec);
 
     actual.rotate({0, 0}, 45);
@@ -120,7 +120,7 @@ TEST(Congruent, Congruent) {
         Point d(1, -1);
         vec = {a, b, c, d};
     }
-    
+
 
     Polygon expected(vec);
 
@@ -138,7 +138,7 @@ TEST(Area, TrianglePolygons) {
 
     std::vector<Point> vec = {a, b, d, c};
     Polygon poly(vec);
-    
+
     ASSERT_NEAR(poly.area(), triangle1.area() + triangle2.area(),1e-6);
 }
 
@@ -152,7 +152,7 @@ TEST(Transformations, Test1) {
 
         vec = {a, b, c, d};
     }
-  
+
     Polygon actual(vec);
     actual.rotate(Point(0,0), 45);
     actual.scale(Point(0,0), 20);
@@ -165,12 +165,12 @@ TEST(Transformations, Test1) {
 
         vec = {a, b, c, d};
     }
-  
+
     Polygon expected(vec);
 
     ASSERT_TRUE(actual == expected);
-    ASSERT_NEAR(actual.perimeter(), expected.perimeter(),1e-6);
-    ASSERT_NEAR(actual.area(), expected.area(),1e-6);
+    ASSERT_NEAR(actual.perimeter(), expected.perimeter(), 1e-6);
+    ASSERT_NEAR(actual.area(), expected.area(), 1e-6);
 }
 
 TEST(Transformations, Test2) {
@@ -184,10 +184,10 @@ TEST(Transformations, Test2) {
     Triangle expected(a, d, e);
     actual.rotate(a, 45);
     actual.scale(a, 20);
-    actual.rotate(a , 45);
+    actual.rotate(a, 45);
     Line line(a, {1, 1});
     actual.reflex(line);
-    actual.scale(a, 0.05);   
+    actual.scale(a, 0.05);
 
     ASSERT_TRUE(actual == expected);
 }
@@ -197,7 +197,7 @@ TEST(Rectangle, Test1) {
     Point b(2.5, 3.0);
     Point c(1.0, 3.0);
     double ratio = 0.5;
-    
+
     Rectangle rectangle(a, b, ratio);
     Triangle triangle(a, b, c);
     ASSERT_NEAR(rectangle.area(), 2 * triangle.area(), 1e-6);
@@ -255,7 +255,7 @@ TEST(Ellipse, Area) {
     Point p2(c, 0.0);
     Ellipse ellipse(p1, p2, 2 * a);
     double pi = 3.1415926;
-    
+
     double area = pi * a * b;
     ASSERT_NEAR(ellipse.area(), area, 1e-6);
 }
