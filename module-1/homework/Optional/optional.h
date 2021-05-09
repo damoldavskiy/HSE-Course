@@ -4,16 +4,19 @@
 
 #pragma once
 
-namespace task {
+namespace task
+{
 
-struct NullOpt {
+struct NullOpt
+{
     explicit constexpr NullOpt(int)
     { }
 };
 
 constexpr NullOpt kNullOpt = NullOpt(0);
 
-struct InPlace {
+struct InPlace
+{
     explicit InPlace() = default;
 };
 
@@ -43,16 +46,19 @@ public:
 
 protected:
     template <typename U = T>
-    void Set(U&& value) {
+    void Set(U&& value)
+    {
         value_ = std::forward<U>(value);
         exists_ = true;
     }
 
-    void Reset() {
+    void Reset()
+    {
         exists_ = false;
     }
 
-    union {
+    union
+    {
         T value_;
         char null_;
     };
@@ -91,7 +97,8 @@ public:
 
 protected:
     template <typename U = T>
-    void Set(U&& value) {
+    void Set(U&& value)
+    {
         if (exists_) {
             value_.~T();
         }
@@ -99,14 +106,16 @@ protected:
         exists_ = true;
     }
 
-    void Reset() {
+    void Reset()
+    {
         if (exists_) {
             value_.~T();
         }
         exists_ = false;
     }
 
-    union {
+    union
+    {
         T value_;
         char null_;
     };
@@ -196,7 +205,6 @@ template <typename U>
 Optional<T>& Optional<T>::operator=(U&& value)
 {
     base::Set(std::forward<U>(value));
-
     return *this;
 }
 
