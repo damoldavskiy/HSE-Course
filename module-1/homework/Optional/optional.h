@@ -26,7 +26,8 @@ template <typename T, bool>
 class OptionalDestructBase
 {
 public:
-    constexpr OptionalDestructBase() = default;
+    constexpr OptionalDestructBase()
+    { }
 
     constexpr OptionalDestructBase(NullOpt)  // NOLINT
     { }
@@ -135,7 +136,7 @@ public:
     constexpr Optional() noexcept;
 
     template <typename U = value_type>
-    constexpr Optional(U&& value);  // NOLINT
+    constexpr explicit Optional(U&& value);
 
     constexpr explicit Optional(NullOpt) noexcept;
 

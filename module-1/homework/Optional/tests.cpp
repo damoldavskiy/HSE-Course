@@ -4,36 +4,6 @@
 #include "gtest/gtest.h"
 #include "optional.h"
 
-task::Optional<std::string> Create(bool b) {
-    if (b) {
-        return "Godzilla";
-    }
-    return {};
-}
-
-auto Create2(bool b) {
-    return (b) ? task::Optional<std::string>{"Godzilla"} : task::kNullOpt;
-}
-
-auto CreateRef(bool b) {
-    static std::string value = "Godzilla";
-    return b ? task::Optional<std::reference_wrapper<std::string>>{value} : task::kNullOpt;
-}
-
-TEST(Custom, Test1) {
-    ASSERT_EQ(*Create(true), "Godzilla");
-    ASSERT_EQ(Create(false).ValueOr("empty"), "empty");
-    ASSERT_EQ(*Create2(true), "Godzilla");
-    ASSERT_EQ(Create2(false).ValueOr("empty"), "empty");
-
-    auto str = CreateRef(true);
-    ASSERT_EQ(str->get(), "Godzilla");
-
-    str->get() = "Mothra";
-
-    ASSERT_EQ(str->get(), "Mothra");
-}
-
 TEST(ValueOR, Test1) {
     task::Optional<std::string> opt("Hello world");
     ASSERT_EQ(opt.ValueOr("empty"), "Hello world");
