@@ -2,15 +2,13 @@
 
 #include <list>
 #include <memory>
-#include <type_traits>
 #include <set>
+#include <type_traits>
 
-namespace task
-{
+namespace task {
 
 template <typename T, typename Allocator = std::allocator<T>>
-class List
-{
+class List {
 private:
     struct Node;
     class Iterator;
@@ -31,11 +29,8 @@ public:
     // Special member functions
     List() = default;
 
-    List(const List& other)
-        : alloc_(other.alloc_)
-    {
-        for (Node* e = other.first_; e != nullptr; e = e->next)
-        {
+    List(const List& other) : alloc_(other.alloc_) {
+        for (Node* e = other.first_; e != nullptr; e = e->next) {
             PushBack(e->value);
         }
     }
@@ -96,15 +91,12 @@ public:
     allocator_type GetAllocator() const noexcept;
 
 private:
-    struct Node
-    {
+    struct Node {
         Node* prev;
         Node* next;
         value_type value;
 
-        Node(Node* prev, Node* next, const_reference value)
-            : prev(prev), next(next), value(value)
-        {
+        Node(Node* prev, Node* next, const_reference value) : prev(prev), next(next), value(value) {
         }
     };
 
@@ -114,8 +106,7 @@ private:
     Node* first_ = nullptr;
     Node* last_ = nullptr;
 
-    class Iterator
-    {
+    class Iterator {
     public:
         using value_type = List::value_type;
         using pointer = List::pointer;
@@ -124,73 +115,57 @@ private:
         using iterator_category = std::bidirectional_iterator_tag;
 
         Iterator() = delete;
-        explicit Iterator(Node* node, bool end = false)
-            : node_(node), end_(end)
-        {
+        explicit Iterator(Node* node, bool end = false) : node_(node), end_(end) {
         }
 
-        Iterator& operator++()
-        {
-            if (node_->next == nullptr)
-            {
+        Iterator& operator++() {
+            if (node_->next == nullptr) {
                 end_ = true;
-            }
-            else
-            {
+            } else {
                 node_ = node_->next;
             }
             return *this;
         }
 
-        Iterator& operator--()
-        {
-            if (!end_)
-            {
+        Iterator& operator--() {
+            if (!end_) {
                 node_ = node_->prev;
             }
             end_ = false;
             return *this;
         }
 
-        Iterator operator++(int)
-        {
+        Iterator operator++(int) {
             Iterator it(*this);
             operator++();
             return it;
         }
 
-        Iterator operator--(int)
-        {
+        Iterator operator--(int) {
             Iterator it(*this);
             operator--();
             return it;
         }
 
-        pointer operator->() const
-        {
-            if (end_)
-            {
+        pointer operator->() const {
+            if (end_) {
                 throw std::runtime_error("End iterator");
             }
             return &node_->value;
         }
 
-        reference operator*() const
-        {
-            if (end_)
-            {
+        reference operator*() const {
+            if (end_) {
                 throw std::runtime_error("End iterator");
             }
             return node_->value;
         }
 
-        bool operator==(const Iterator& other)
-        {
+        bool operator==(const Iterator& other) {
             return node_ == other.node_ && end_ == other.end_;
         }
 
-        bool operator!=(const Iterator& other)
-        {
+        bool operator!=(const Iterator& other) {
             return !(*this == other);
         }
 
@@ -201,55 +176,44 @@ private:
 };
 
 template <typename T, typename Allocator>
-List<T, Allocator>::List(const List& other, const Allocator& alloc)
-{
+List<T, Allocator>::List(const List& other, const Allocator& alloc) {
     alloc_ = alloc;
-    for (Node* e = other.first_; e != nullptr; e = e->next)
-    {
+    for (Node* e = other.first_; e != nullptr; e = e->next) {
         PushBack(e->value);
     }
 }
 
 template <typename T, typename Allocator>
-List<T, Allocator>::List(List&& other)
-{
+List<T, Allocator>::List(List&& other) {
     *this = std::move(other);
 }
 
 template <typename T, typename Allocator>
-List<T, Allocator>::List(List&& other, const Allocator& alloc)
-{
+List<T, Allocator>::List(List&& other, const Allocator& alloc) {
     alloc_ = alloc;
-    for (Node* e = other.first_; e != nullptr; e = e->next)
-    {
+    for (Node* e = other.first_; e != nullptr; e = e->next) {
         PushBack(std::move(e->value));
     }
     other.Clear();
 }
 
-
 template <typename T, typename Allocator>
-List<T, Allocator>::~List()
-{
+List<T, Allocator>::~List() {
     Clear();
 }
 
 template <typename T, typename Allocator>
-List<T, Allocator>& List<T, Allocator>::operator=(const List& other)
-{
-    if (this == &other)
-    {
+List<T, Allocator>& List<T, Allocator>::operator=(const List& other) {
+    if (this == &other) {
         return *this;
     }
 
     Clear();
-    if (std::allocator_traits<allocator_type>::propagate_on_container_copy_assignment::value)
-    {
+    if (std::allocator_traits<allocator_type>::propagate_on_container_copy_assignment::value) {
         alloc_ = other.alloc_;
     }
 
-    for (Node* e = other.first_; e != nullptr; e = e->next)
-    {
+    for (Node* e = other.first_; e != nullptr; e = e->next) {
         PushBack(e->value);
     }
 
@@ -257,17 +221,14 @@ List<T, Allocator>& List<T, Allocator>::operator=(const List& other)
 }
 
 template <typename T, typename Allocator>
-List<T, Allocator>& List<T, Allocator>::operator=(List&& other) noexcept
-{
-    if (this == &other)
-    {
+List<T, Allocator>& List<T, Allocator>::operator=(List&& other) noexcept {
+    if (this == &other) {
         return *this;
     }
 
     Clear();
 
-    if (std::allocator_traits<allocator_type>::propagate_on_container_move_assignment::value)
-    {
+    if (std::allocator_traits<allocator_type>::propagate_on_container_move_assignment::value) {
         alloc_ = other.alloc_;
 
         first_ = other.first_;
@@ -275,11 +236,8 @@ List<T, Allocator>& List<T, Allocator>::operator=(List&& other) noexcept
 
         other.first_ = nullptr;
         other.last_ = nullptr;
-    }
-    else
-    {
-        for (Node* e = other.first_; e != nullptr; e = e->next)
-        {
+    } else {
+        for (Node* e = other.first_; e != nullptr; e = e->next) {
             PushBack(std::move(e->value));
         }
         other.Clear();
@@ -289,38 +247,32 @@ List<T, Allocator>& List<T, Allocator>::operator=(List&& other) noexcept
 }
 
 template <typename T, typename Allocator>
-typename List<T, Allocator>::reference List<T, Allocator>::Front()
-{
+typename List<T, Allocator>::reference List<T, Allocator>::Front() {
     return first_->value;
 }
 
 template <typename T, typename Allocator>
-typename List<T, Allocator>::const_reference List<T, Allocator>::Front() const
-{
+typename List<T, Allocator>::const_reference List<T, Allocator>::Front() const {
     return first_->value;
 }
 
 template <typename T, typename Allocator>
-typename List<T, Allocator>::reference List<T, Allocator>::Back()
-{
+typename List<T, Allocator>::reference List<T, Allocator>::Back() {
     return last_->value;
 }
 
 template <typename T, typename Allocator>
-typename List<T, Allocator>::const_reference List<T, Allocator>::Back() const
-{
+typename List<T, Allocator>::const_reference List<T, Allocator>::Back() const {
     return last_->value;
 }
 
 template <typename T, typename Allocator>
-bool List<T, Allocator>::Empty() const noexcept
-{
+bool List<T, Allocator>::Empty() const noexcept {
     return first_ == nullptr;
 }
 
 template <typename T, typename Allocator>
-size_t List<T, Allocator>::Size() const noexcept
-{
+size_t List<T, Allocator>::Size() const noexcept {
     size_t count = 0;
     Node* e = first_;
     while (e != nullptr) {
@@ -331,82 +283,66 @@ size_t List<T, Allocator>::Size() const noexcept
 }
 
 template <typename T, typename Allocator>
-void List<T, Allocator>::Clear()
-{
-    while (!Empty())
-    {
+void List<T, Allocator>::Clear() {
+    while (!Empty()) {
         PopBack();
     }
 }
 
 template <typename T, typename Allocator>
-void List<T, Allocator>::PushBack(const_reference value)
-{
+void List<T, Allocator>::PushBack(const_reference value) {
     Node* e = alloc_.allocate(1);
     alloc_.construct(e, last_, nullptr, value);
 
-    if (last_ != nullptr)
-    {
+    if (last_ != nullptr) {
         last_->next = e;
     }
     last_ = e;
-    if (first_ == nullptr)
-    {
+    if (first_ == nullptr) {
         first_ = e;
     }
 }
 
 template <typename T, typename Allocator>
-void List<T, Allocator>::PushBack(T&& value)
-{
+void List<T, Allocator>::PushBack(T&& value) {
     Node* e = alloc_.allocate(1);
     alloc_.construct(e, last_, nullptr, std::move(value));
 
-    if (last_ != nullptr)
-    {
+    if (last_ != nullptr) {
         last_->next = e;
     }
     last_ = e;
-    if (first_ == nullptr)
-    {
+    if (first_ == nullptr) {
         first_ = e;
     }
 }
 
 template <typename T, typename Allocator>
 template <typename... Args>
-void List<T, Allocator>::EmplaceBack(Args&&... args)
-{
-     Node* e = alloc_.allocate(1);
+void List<T, Allocator>::EmplaceBack(Args&&... args) {
+    Node* e = alloc_.allocate(1);
     alloc_.construct(e, last_, nullptr, std::forward<Args>(args)...);
 
-    if (last_ != nullptr)
-    {
+    if (last_ != nullptr) {
         last_->next = e;
     }
     last_ = e;
-    if (first_ == nullptr)
-    {
+    if (first_ == nullptr) {
         first_ = e;
     }
 }
 
 template <typename T, typename Allocator>
-void List<T, Allocator>::PopBack()
-{
-    if (last_ == nullptr)
-    {
+void List<T, Allocator>::PopBack() {
+    if (last_ == nullptr) {
         return;
     }
 
     Node* e = last_;
     last_ = e->prev;
-    if (last_ != nullptr)
-    {
+    if (last_ != nullptr) {
         last_->next = nullptr;
-    }
-    else
-    {
+    } else {
         first_ = nullptr;
     }
 
@@ -415,73 +351,59 @@ void List<T, Allocator>::PopBack()
 }
 
 template <typename T, typename Allocator>
-void List<T, Allocator>::PushFront(const_reference value)
-{
+void List<T, Allocator>::PushFront(const_reference value) {
     Node* e = alloc_.allocate(1);
     alloc_.construct(e, nullptr, first_, value);
 
-    if (first_ != nullptr)
-    {
+    if (first_ != nullptr) {
         first_->prev = e;
     }
     first_ = e;
-    if (last_ == nullptr)
-    {
+    if (last_ == nullptr) {
         last_ = e;
     }
 }
 
 template <typename T, typename Allocator>
-void List<T, Allocator>::PushFront(T&& value)
-{
+void List<T, Allocator>::PushFront(T&& value) {
     Node* e = alloc_.allocate(1);
     alloc_.construct(e, nullptr, first_, std::move(value));
 
-    if (first_ != nullptr)
-    {
+    if (first_ != nullptr) {
         first_->prev = e;
     }
     first_ = e;
-    if (last_ == nullptr)
-    {
+    if (last_ == nullptr) {
         last_ = e;
     }
 }
 
 template <typename T, typename Allocator>
 template <typename... Args>
-void List<T, Allocator>::EmplaceFront(Args&&... args)
-{
-     Node* e = alloc_.allocate(1);
+void List<T, Allocator>::EmplaceFront(Args&&... args) {
+    Node* e = alloc_.allocate(1);
     alloc_.construct(e, nullptr, first_, std::forward<Args>(args)...);
 
-    if (first_ != nullptr)
-    {
+    if (first_ != nullptr) {
         first_->prev = e;
     }
     first_ = e;
-    if (last_ == nullptr)
-    {
+    if (last_ == nullptr) {
         last_ = e;
     }
 }
 
 template <typename T, typename Allocator>
-void List<T, Allocator>::PopFront()
-{
-    if (first_ == nullptr)
-    {
+void List<T, Allocator>::PopFront() {
+    if (first_ == nullptr) {
         return;
     }
 
     Node* e = first_;
     first_ = e->next;
-    if (first_ != nullptr)
-    {
+    if (first_ != nullptr) {
         first_->prev = nullptr;
-    }
-    else
-    {
+    } else {
         last_ = nullptr;
     }
 
@@ -490,41 +412,30 @@ void List<T, Allocator>::PopFront()
 }
 
 template <typename T, typename Allocator>
-void List<T, Allocator>::Resize(size_type count)
-{
+void List<T, Allocator>::Resize(size_type count) {
     size_type size = Size();
-    if (size < count)
-    {
-        for (size_type i = 0; i < count - size; ++i)
-        {
+    if (size < count) {
+        for (size_type i = 0; i < count - size; ++i) {
             PushBack(T());
         }
-    }
-    else
-    {
-        for (size_type i = 0; i < size - count; ++i)
-        {
+    } else {
+        for (size_type i = 0; i < size - count; ++i) {
             PopBack();
         }
     }
 }
 
 template <typename T, typename Allocator>
-void List<T, Allocator>::Swap(List& other) noexcept
-{
-    if (&other == this)
-    {
+void List<T, Allocator>::Swap(List& other) noexcept {
+    if (&other == this) {
         return;
     }
 
-    if (std::allocator_traits<allocator_type>::propagate_on_container_swap::value)
-    {
+    if (std::allocator_traits<allocator_type>::propagate_on_container_swap::value) {
         std::swap(alloc_, other.alloc_);
         std::swap(first_, other.first_);
         std::swap(last_, other.last_);
-    }
-    else
-    {
+    } else {
         List temp = std::move(other);
         other = std::move(*this);
         *this = std::move(temp);
@@ -532,34 +443,25 @@ void List<T, Allocator>::Swap(List& other) noexcept
 }
 
 template <typename T, typename Allocator>
-void List<T, Allocator>::Remove(const_reference value)
-{
+void List<T, Allocator>::Remove(const_reference value) {
     Node* e = first_;
 
-    while (e != nullptr)
-    {
+    while (e != nullptr) {
         Node* next;
 
-        if (e->value != value)
-        {
+        if (e->value != value) {
             next = e->next;
-        }
-        else
-        {
-            if (e->prev != nullptr)
-            {
+        } else {
+            if (e->prev != nullptr) {
                 e->prev->next = e->next;
             }
-            if (e->next != nullptr)
-            {
+            if (e->next != nullptr) {
                 e->next->prev = e->prev;
             }
-            if (e == first_)
-            {
+            if (e == first_) {
                 first_ = e->next;
             }
-            if (e == last_)
-            {
+            if (e == last_) {
                 last_ = e->prev;
             }
 
@@ -574,33 +476,25 @@ void List<T, Allocator>::Remove(const_reference value)
 }
 
 template <typename T, typename Allocator>
-void List<T, Allocator>::Unique()
-{
+void List<T, Allocator>::Unique() {
     Node* e = first_;
     std::set<T> els;
 
-    while (e != nullptr)
-    {
+    while (e != nullptr) {
         Node* next;
 
-        if (els.find(e->value) == els.end())
-        {
+        if (els.find(e->value) == els.end()) {
             els.insert(e->value);
             next = e->next;
-        }
-        else
-        {
+        } else {
             e->prev->next = e->next;
-            if (e->next != nullptr)
-            {
+            if (e->next != nullptr) {
                 e->next->prev = e->prev;
             }
-            if (e == first_)
-            {
+            if (e == first_) {
                 first_ = e->next;
             }
-            if (e == last_)
-            {
+            if (e == last_) {
                 last_ = e->prev;
             }
 
@@ -615,17 +509,13 @@ void List<T, Allocator>::Unique()
 }
 
 template <typename T, typename Allocator>
-void List<T, Allocator>::Sort()
-{
+void List<T, Allocator>::Sort() {
     size_type size = Size();
-    for (size_type i = 0; i < size; ++i)
-    {
+    for (size_type i = 0; i < size; ++i) {
         Node* e = first_;
 
-        for (size_type j = 0; j < size - i - 1; ++j, e = e->next)
-        {
-            if (e->value > e->next->value)
-            {
+        for (size_type j = 0; j < size - i - 1; ++j, e = e->next) {
+            if (e->value > e->next->value) {
                 std::swap(e->value, e->next->value);
             }
         }
@@ -633,32 +523,27 @@ void List<T, Allocator>::Sort()
 }
 
 template <typename T, typename Allocator>
-typename List<T, Allocator>::iterator List<T, Allocator>::Begin() noexcept
-{
+typename List<T, Allocator>::iterator List<T, Allocator>::Begin() noexcept {
     return iterator(first_, first_ == nullptr);
 }
 
 template <typename T, typename Allocator>
-typename List<T, Allocator>::const_iterator List<T, Allocator>::Begin() const noexcept
-{
+typename List<T, Allocator>::const_iterator List<T, Allocator>::Begin() const noexcept {
     return const_iterator(first_, first_ == nullptr);
 }
 
 template <typename T, typename Allocator>
-typename List<T, Allocator>::iterator List<T, Allocator>::End() noexcept
-{
+typename List<T, Allocator>::iterator List<T, Allocator>::End() noexcept {
     return iterator(last_, true);
 }
 
 template <typename T, typename Allocator>
-typename List<T, Allocator>::const_iterator List<T, Allocator>::End() const noexcept
-{
+typename List<T, Allocator>::const_iterator List<T, Allocator>::End() const noexcept {
     return const_iterator(last_, true);
 }
 
 template <typename T, typename Allocator>
-typename List<T, Allocator>::allocator_type List<T, Allocator>::GetAllocator() const noexcept
-{
+typename List<T, Allocator>::allocator_type List<T, Allocator>::GetAllocator() const noexcept {
     return Allocator(alloc_);
 }
 

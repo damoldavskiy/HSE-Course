@@ -5,8 +5,7 @@ template <typename T>
 class CustomAllocator {
 public:
     template <typename U>
-    struct rebind  // NOLINT
-    {
+    struct rebind {  // NOLINT
         using other = CustomAllocator<U>;
     };
 
@@ -29,25 +28,20 @@ public:
     template <typename U>
     explicit CustomAllocator(const CustomAllocator<U>& other) noexcept;
 
-    void* Arena() const
-    {
+    void* Arena() const {
         return arena_;
     }
 
-    size_type* Allocated() const
-    {
+    size_type* Allocated() const {
         return allocated_;
     }
 
-    size_type* AllocatorsCount() const
-    {
+    size_type* AllocatorsCount() const {
         return allocators_count_;
     }
 
-    T* allocate(size_t n)  // NOLINT
-    {
-        if (*allocated_ + n > kAllocationSize)
-        {
+    T* allocate(size_t n) {  // NOLINT
+        if (*allocated_ + n > kAllocationSize) {
             throw std::runtime_error("Out of memory");
         }
 
@@ -56,18 +50,15 @@ public:
         return static_cast<pointer>(arena_) + (*allocated_ - n);
     }
 
-    void deallocate(T*, size_t)  // NOLINT
-    {
-    };
+    void deallocate(T*, size_t) {  // NOLINT
+    }
 
     template <typename... Args>
-    void construct(pointer p, Args&&... args)  // NOLINT
-    {
-        new(p) value_type(std::forward<Args>(args)...);
+    void construct(pointer p, Args&&... args) {  // NOLINT
+        new (p) value_type(std::forward<Args>(args)...);
     };
 
-    void destroy(pointer p)  // NOLINT
-    {
+    void destroy(pointer p) {  // NOLINT
         p->~T();
     };
 
@@ -85,8 +76,7 @@ private:
 };
 
 template <typename T>
-CustomAllocator<T>::CustomAllocator()
-{
+CustomAllocator<T>::CustomAllocator() {
     arena_ = operator new(kAllocationSize * sizeof(value_type));
     allocated_ = new size_type(0);
     allocators_count_ = new size_type(1);
@@ -94,18 +84,17 @@ CustomAllocator<T>::CustomAllocator()
 
 template <typename T>
 CustomAllocator<T>::CustomAllocator(const CustomAllocator& other) noexcept
-    : arena_(other.arena_), allocated_(other.allocated_), allocators_count_(other.allocators_count_)
-{
+    : arena_(other.arena_),
+      allocated_(other.allocated_),
+      allocators_count_(other.allocators_count_) {
     ++*allocators_count_;
 }
 
 template <typename T>
-CustomAllocator<T>::~CustomAllocator()
-{
+CustomAllocator<T>::~CustomAllocator() {
     --*allocators_count_;
 
-    if (*allocators_count_ == 0)
-    {
+    if (*allocators_count_ == 0) {
         operator delete(arena_);
         delete allocated_;
         delete allocators_count_;
@@ -115,19 +104,18 @@ CustomAllocator<T>::~CustomAllocator()
 template <typename T>
 template <typename U>
 CustomAllocator<T>::CustomAllocator(const CustomAllocator<U>& other) noexcept
-    : arena_(other.Arena()), allocated_(other.Allocated()), allocators_count_(other.AllocatorsCount())
-{
+    : arena_(other.Arena()),
+      allocated_(other.Allocated()),
+      allocators_count_(other.AllocatorsCount()) {
     ++*allocators_count_;
 }
 
 template <typename T, typename U>
-bool operator==(const CustomAllocator<T>& lhs, const CustomAllocator<U>& rhs) noexcept
-{
+bool operator==(const CustomAllocator<T>& lhs, const CustomAllocator<U>& rhs) noexcept {
     return lhs.arena_ == rhs.arena_;
 }
 
 template <typename T, typename U>
-bool operator!=(const CustomAllocator<T>& lhs, const CustomAllocator<U>& rhs) noexcept
-{
+bool operator!=(const CustomAllocator<T>& lhs, const CustomAllocator<U>& rhs) noexcept {
     return !(lhs == rhs);
 }
