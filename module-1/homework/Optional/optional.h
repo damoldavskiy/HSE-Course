@@ -26,8 +26,7 @@ template <typename T, bool>
 class OptionalDestructBase
 {
 public:
-    constexpr OptionalDestructBase()
-    { }
+    constexpr OptionalDestructBase() = default;
 
     constexpr OptionalDestructBase(NullOpt)  // NOLINT
     { }
