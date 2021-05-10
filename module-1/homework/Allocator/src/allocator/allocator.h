@@ -1,8 +1,6 @@
 #include <memory>
 #include <type_traits>
 
-const size_t kAllocationSize = 16384;
-
 template <typename T>
 class CustomAllocator {
 public:
@@ -79,6 +77,8 @@ public:
     friend bool operator!=(const CustomAllocator<K>& lhs, const CustomAllocator<U>& rhs) noexcept;
 
 private:
+    static const size_t kAllocationSize{16384};
+
     void* arena_ = nullptr;
     size_type* allocated_ = nullptr;
     size_type* allocators_count_ = nullptr;

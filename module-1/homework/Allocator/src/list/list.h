@@ -29,14 +29,11 @@ public:
     using const_reverse_iterator = std::reverse_iterator<const Iterator>;
 
     // Special member functions
-    List()
-    {
-    };
+    List() = default;
 
     List(const List& other)
+        : alloc_(other.alloc_)
     {
-//        alloc_ = other.alloc_.select_on_container_copy_construction();
-        alloc_ = other.alloc_;
         for (Node* e = other.first_; e != nullptr; e = e->next)
         {
             PushBack(e->value);
