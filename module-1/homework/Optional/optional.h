@@ -1,64 +1,56 @@
-#include <cstdlib>
-#include <type_traits>
-#include <memory>
-
 #pragma once
 
-namespace task
-{
+#include <cstdlib>
+#include <memory>
+#include <type_traits>
 
-struct NullOpt
-{
-    explicit constexpr NullOpt(int)
-    { }
+namespace task {
+
+struct NullOpt {
+    explicit constexpr NullOpt(int) {
+    }
 };
 
 constexpr NullOpt kNullOpt = NullOpt(0);
 
-struct InPlace
-{
+struct InPlace {
     explicit InPlace() = default;
 };
 
 constexpr InPlace kInPlace = InPlace();
 
 template <typename T, bool>
-class OptionalDestructBase
-{
+class OptionalDestructBase {
 public:
-    constexpr OptionalDestructBase()
-    { }
+    constexpr OptionalDestructBase() {
+    }
 
     constexpr OptionalDestructBase(NullOpt)  // NOLINT
-    { }
+    {
+    }
 
     template <typename... Args>
     constexpr OptionalDestructBase(InPlace, Args&&... args)  // NOLINT
-        : value_(std::forward<Args>(args)...),
-          exists_(true)
-    { }
+        : value_(std::forward<Args>(args)...), exists_(true) {
+    }
 
     template <typename U = T>
     constexpr OptionalDestructBase(U&& value)  // NOLINT
-        : value_(std::forward<U>(value)),
-          exists_(true)
-    { }
+        : value_(std::forward<U>(value)), exists_(true) {
+    }
 
 protected:
     template <typename U = T>
-    void Set(U&& value)
-    {
+    void Set(U&& value) {
         value_ = std::forward<U>(value);
         exists_ = true;
     }
 
-    void Reset()
-    {
+    void Reset() {
         exists_ = false;
     }
 
-    union
-    {
+    union {
         T value_;
         char null_;
     };
@@ -67,29 +59,26 @@ protected:
 };
 
 template <typename T>
-class OptionalDestructBase<T, false>
-{
+class OptionalDestructBase<T, false> {
 public:
-    constexpr OptionalDestructBase()
-    { }
+    constexpr OptionalDestructBase() {
+    }
 
     constexpr OptionalDestructBase(NullOpt)  // NOLINT
-    { }
+    {
+    }
 
     template <typename... Args>
     constexpr OptionalDestructBase(InPlace, Args&&... args)  // NOLINT
-        : value_(std::forward<Args>(args)...),
-          exists_(true)
-    { }
+        : value_(std::forward<Args>(args)...), exists_(true) {
+    }
 
     template <typename U = T>
     constexpr OptionalDestructBase(U&& value)  // NOLINT
-        : value_(std::forward<U>(value)),
-          exists_(true)
-    { }
+        : value_(std::forward<U>(value)), exists_(true) {
+    }
 
-    ~OptionalDestructBase()
-    {
+    ~OptionalDestructBase() {
         if (exists_) {
             value_.~T();
         }
@@ -97,8 +86,7 @@ public:
 
 protected:
     template <typename U = T>
-    void Set(U&& value)
-    {
+    void Set(U&& value) {
         if (exists_) {
             value_.~T();
         }
@@ -106,16 +94,14 @@ protected:
         exists_ = true;
     }
 
-    void Reset()
-    {
+    void Reset() {
         if (exists_) {
             value_.~T();
         }
         exists_ = false;
     }
 
-    union
-    {
+    union {
         T value_;
         char null_;
     };
@@ -123,10 +109,8 @@ protected:
     bool exists_ = false;
 };
 
-
 template <typename T>
-class Optional : OptionalDestructBase<T, std::is_trivially_destructible_v<T>>
-{
+class Optional : OptionalDestructBase<T, std::is_trivially_destructible_v<T>> {
 private:
     using base = OptionalDestructBase<T, std::is_trivially_destructible<T>::value>;
 
@@ -174,50 +158,45 @@ public:
 };
 
 template <typename T>
-constexpr Optional<T>::Optional() noexcept
-{ }
+constexpr Optional<T>::Optional() noexcept {
+}
 
 template <typename T>
 template <typename U>
-constexpr Optional<T>::Optional(U&& value)
-    : base(std::forward<U>(value))
-{ }
+constexpr Optional<T>::Optional(U&& value) : base(std::forward<U>(value)) {
+}
 
 template <typename T>
-constexpr Optional<T>::Optional(NullOpt) noexcept
-{ }
+constexpr Optional<T>::Optional(NullOpt) noexcept {
+}
 
 template <typename T>
 template <typename... Args>
 constexpr Optional<T>::Optional(InPlace, Args&&... args)
-    : base(kInPlace, std::forward<Args>(args)...)
-{ }
+    : base(kInPlace, std::forward<Args>(args)...) {
+}
 
 template <typename T>
-Optional<T>& Optional<T>::operator=(NullOpt) noexcept
-{
+Optional<T>& Optional<T>::operator=(NullOpt) noexcept {
     base::Reset();
     return *this;
 }
 
 template <typename T>
 template <typename U>
-Optional<T>& Optional<T>::operator=(U&& value)
-{
+Optional<T>& Optional<T>::operator=(U&& value) {
     base::Set(std::forward<U>(value));
     return *this;
 }
 
 template <typename T>
-void Optional<T>::Reset() noexcept
-{
+void Optional<T>::Reset() noexcept {
     base::Reset();
 }
 
 template <typename T>
 template <typename U>
-constexpr T Optional<T>::ValueOr(U&& default_value) const&
-{
+constexpr T Optional<T>::ValueOr(U&& default_value) const& {
     if (base::exists_) {
         return base::value_;
     }
@@ -226,8 +205,7 @@ constexpr T Optional<T>::ValueOr(U&& default_value) const&
 
 template <typename T>
 template <typename U>
-constexpr T Optional<T>::ValueOr(U&& default_value) &&
-{
+constexpr T Optional<T>::ValueOr(U&& default_value) && {
     if (base::exists_) {
         return base::value_;
     }
@@ -235,50 +213,43 @@ constexpr T Optional<T>::ValueOr(U&& default_value) &&
 }
 
 template <typename T>
-constexpr bool Optional<T>::HasValue() const noexcept
-{
+constexpr bool Optional<T>::HasValue() const noexcept {
     return base::exists_;
 }
 
 template <typename T>
-constexpr Optional<T>::operator bool() const noexcept
-{
+constexpr Optional<T>::operator bool() const noexcept {
     return HasValue();
 }
 
 template <typename T>
-constexpr std::add_pointer_t<const typename Optional<T>::value_type> Optional<T>::operator->() const
-{
+constexpr std::add_pointer_t<const typename Optional<T>::value_type> Optional<T>::operator->()
+    const {
     return base::value_;
 }
 
 template <typename T>
-constexpr std::add_pointer_t<typename Optional<T>::value_type> Optional<T>::operator->()
-{
+constexpr std::add_pointer_t<typename Optional<T>::value_type> Optional<T>::operator->() {
     return &(base::value_);
 }
 
 template <typename T>
-constexpr const typename Optional<T>::value_type& Optional<T>::operator*() const&
-{
+constexpr const typename Optional<T>::value_type& Optional<T>::operator*() const& {
     return base::value_;
 }
 
 template <typename T>
-constexpr typename Optional<T>::value_type& Optional<T>::operator*() &
-{
+constexpr typename Optional<T>::value_type& Optional<T>::operator*() & {
     return base::value_;
 }
 
 template <typename T>
-constexpr const typename Optional<T>::value_type&& Optional<T>::operator*() const&&
-{
+constexpr const typename Optional<T>::value_type&& Optional<T>::operator*() const&& {
     return std::move(base::value_);
 }
 
 template <typename T>
-constexpr typename Optional<T>::value_type&& Optional<T>::operator*() &&
-{
+constexpr typename Optional<T>::value_type&& Optional<T>::operator*() && {
     return std::move(base::value_);
 }
 
