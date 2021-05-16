@@ -95,21 +95,32 @@ const static std::size_t kAmbiguity = kNotFounded - 1;
 
 constexpr std::size_t ProcessBackward(std::size_t i, std::size_t res, const bool* founded,
                                       const bool* founded_convertible) {
-    return (res == kAmbiguity)
-               ? res
-               : (founded[i]) ? ((res == kNotFounded || (!founded[res] && founded_convertible[res]))
-                                     ? i
-                                     : kAmbiguity)
-                              : ((res == kNotFounded && founded_convertible[i]) ? i : res);
+    if (res == kAmbiguity) {
+        return res;
+    }
+
+    if (founded[i]) {
+        if (res == kNotFounded || !(!founded[res] && founded_convertible[res])) {
+            return i;
+        }
+        return kAmbiguity;
+    }
+
+    if (res == kNotFounded && founded_convertible[i]) {
+        return i;
+    }
+
+    return res;
 }
 
 template <std::size_t SizeofFounded>
 constexpr std::size_t ProcessForeward(std::size_t cur_pos, const bool (&founded)[SizeofFounded],
                                       const bool (&convertible)[SizeofFounded]) {
-    return (cur_pos == SizeofFounded)
-               ? kNotFounded
-               : ProcessBackward(cur_pos, ProcessForeward(cur_pos + 1, founded, convertible),
-                                 founded, convertible);
+    if (cur_pos == SizeofFounded) {
+        return kNotFounded;
+    }
+    return ProcessBackward(cur_pos, ProcessForeward(cur_pos + 1, founded, convertible), founded,
+                           convertible);
 }
 
 template <typename TargetType, typename... Types>
