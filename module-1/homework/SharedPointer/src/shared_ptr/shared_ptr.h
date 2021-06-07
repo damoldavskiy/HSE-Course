@@ -89,8 +89,8 @@ public:
     friend class WeakPtr;
 
 private:
-    element_type* value_ = nullptr;
-    SharedWeakCount* block_ = nullptr;
+    element_type* value_{nullptr};
+    SharedWeakCount* block_{nullptr};
 };
 
 template <typename T, typename... Args>
@@ -138,7 +138,6 @@ template <typename T>
 SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr& other) noexcept {
     Reset();
     this->value_ = other.value_;
-    //    value_ = other->value_;
     block_ = other.block_;
     block_->Add();
     return *this;
@@ -285,8 +284,8 @@ public:
     friend class SharedPtr;
 
 public:
-    element_type* value_ = nullptr;
-    SharedWeakCount* block_ = nullptr;
+    element_type* value_{nullptr};
+    SharedWeakCount* block_{nullptr};
 };
 
 template <typename T>
