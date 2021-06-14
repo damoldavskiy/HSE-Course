@@ -30,7 +30,7 @@ struct IsNoThrowConstructible
     : LibCppIsNoThrowConstructible<IsConstructible<T, Args...>::value, std::is_reference_v<T>, T,
                                    Args...>::type {};
 
-template <typename T, std::size_t N>
+template <typename T, size_t N>
 struct IsNoThrowConstructible<T[N]>
     : LibCppIsNoThrowConstructible<IsConstructible<T>::value, std::is_reference_v<T>, T>::type {};
 
